@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estado Animales</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --vivo:        #4CAF7D;
+    --reproductivo:#3B9EBF;
+    --vendido:     #F4A34D;
+    --muerto:      #E05C5C;
+    --bg:          #FAFAF8;
+    --card:        #FFFFFF;
+    --text:        #1a1a1a;
+    --muted:       #888;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: 20px;
+    box-shadow: 0 4px 32px rgba(0,0,0,0.07);
+    padding: 32px 36px 28px;
+    max-width: 480px;
+    width: 100%;
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.45rem;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 28px;
+    letter-spacing: 0.02em;
+  }
+
+  .chart-wrap {
+    position: relative;
+    width: 220px;
+    margin: 0 auto 28px;
+  }
+
+  .center-label {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .center-label span {
+    display: block;
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .center-label small {
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .legend {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 20px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .dot {
+    width: 11px; height: 11px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .legend-text {
+    flex: 1;
+    font-size: 0.82rem;
+    color: var(--text);
+    text-transform: capitalize;
+  }
+
+  .legend-count {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .legend-pct {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-left: 2px;
+  }
+
+  /* ── Editable inputs (para actualizar datos) ── */
+  details {
+    margin-top: 24px;
+    border-top: 1px solid #eee;
+    padding-top: 16px;
+  }
+
+  summary {
+    font-size: 0.78rem;
+    color: var(--muted);
+    cursor: pointer;
+    user-select: none;
+    letter-spacing: 0.04em;
+  }
+
+  .inputs {
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 16px;
+  }
+
+  .input-group label {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-bottom: 3px;
+    text-transform: capitalize;
+  }
+
+  .input-group input {
+    width: 100%;
+    border: 1px solid #e0e0e0;
+    border-radius: 7px;
+    padding: 5px 8px;
+    font-size: 0.85rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color .2s;
+  }
+
+  .input-group input:focus { border-color: #aaa; }
+
+  button.apply {
+    margin-top: 12px;
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-radius: 9px;
+    background: var(--text);
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: opacity .2s;
+  }
+
+  button.apply:hover { opacity: 0.82; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Hato de Animales</h1>
+  <p class="subtitle">Estado actual del inventario</p>
+
+  <div class="chart-wrap">
+    <canvas id="donut" width="220" height="220"></canvas>
+    <div class="center-label">
+      <span id="total">0</span>
+      <small>Total</small>
+    </div>
+  </div>
+
+  <div class="legend" id="legend"></div>
+
+  <!-- Panel para editar datos sin tocar código -->
+  <details>
+    <summary>✏️ Actualizar datos manualmente</summary>
+    <div class="inputs" id="inputs"></div>
+    <button class="apply" onclick="applyInputs()">Actualizar gráfico</button>
+  </details>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+//  EDITA AQUÍ TUS DATOS
+// ════════════════════════════════════════════
+const estadosData = {
+  Vivo:         42,
+  Reproductivo: 18,
+  Vendido:      25,
+  Muerto:        7
+  // Agrega o quita estados según tu base de datos
+};
+
+const colores = {
+  Vivo:         '#4CAF7D',
+  Reproductivo: '#3B9EBF',
+  Vendido:      '#F4A34D',
+  Muerto:       '#E05C5C',
+  // Colores para estados extra:
+  _extra: ['#9C7EEC','#F06292','#78909C','#FFD54F','#A5D6A7']
+};
+
+// ════════════════════════════════════════════
+
+let chart;
+
+function getColor(name, idx) {
+  return colores[name] || colores._extra[idx % colores._extra.length];
+}
+
+function buildChart(data) {
+  const labels  = Object.keys(data);
+  const values  = Object.values(data);
+  const bgColors = labels.map((l, i) => getColor(l, i));
+  const total   = values.reduce((a, b) => a + b, 0);
+
+  document.getElementById('total').textContent = total;
+
+  // Leyenda
+  const legendEl = document.getElementById('legend');
+  legendEl.innerHTML = labels.map((l, i) => {
+    const pct = total ? Math.round(values[i] / total * 100) : 0;
+    return `<div class="legend-item">
+      <div class="dot" style="background:${bgColors[i]}"></div>
+      <span class="legend-text">${l}</span>
+      <span class="legend-count">${values[i]}<span class="legend-pct">${pct}%</span></span>
+    </div>`;
+  }).join('');
+
+  // Inputs
+  const inputsEl = document.getElementById('inputs');
+  inputsEl.innerHTML = labels.map(l => `
+    <div class="input-group">
+      <label>${l}</label>
+      <input type="number" id="inp_${l}" value="${data[l]}" min="0">
+    </div>`).join('');
+
+  // Chart
+  const ctx = document.getElementById('donut').getContext('2d');
+  if (chart) chart.destroy();
+  chart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels,
+      datasets: [{
+        data: values,
+        backgroundColor: bgColors,
+        borderWidth: 3,
+        borderColor: '#ffffff',
+        hoverOffset: 8
+      }]
+    },
+    options: {
+      cutout: '68%',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const v = ctx.parsed;
+              const pct = total ? Math.round(v / total * 100) : 0;
+              return ` ${v} animales (${pct}%)`;
+            }
+          }
+        }
+      },
+      animation: { animateRotate: true, duration: 700 }
+    }
+  });
+}
+
+function applyInputs() {
+  const newData = {};
+  Object.keys(estadosData).forEach(k => {
+    const el = document.getElementById('inp_' + k);
+    if (el) newData[k] = parseInt(el.value) || 0;
+  });
+  buildChart(newData);
+}
+
+buildChart(estadosData);
+</script>
+</body>
+</html>
