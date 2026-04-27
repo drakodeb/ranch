@@ -143,8 +143,8 @@
 </head>
 <body>
 <div class="card">
-  <h1>Hato de Animales</h1>
-  <p class="subtitle">Estado actual del inventario</p>
+  <h1>Estado actual del inventario</h1>
+  <p class="subtitle">RANCHO ALTO</p>
 
   <div class="totales">
     <div class="total-box hato">
@@ -181,7 +181,7 @@ let estadosData = {
   "Muerto":             6
 };
 
-const excluirDeHato = ["Traspaso", "Vendido", "Muerto"];
+const excluirDeHato = ["Vendido", "Muerto"];
 
 const colores = {
   "Levante":            "#F4A34D",
@@ -271,7 +271,7 @@ const outerLabelsPlugin = {
       ctx.textBaseline = 'top';
       ctx.font         = '400 10.5px "DM Sans", sans-serif';
       ctx.fillStyle    = dark ? '#aaa' : '#666';
-      ctx.fillText(`${value} animales · ${pct}%`, tx, ty + 2);
+      ctx.fillText(`${value} anim · ${pct}%`, tx, ty + 2);
     });
 
     ctx.restore();
