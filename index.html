@@ -9,20 +9,67 @@
   @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+  /* ── Tema claro ── */
+  :root {
+    --bg:          #FAFAF8;
+    --card:        #ffffff;
+    --shadow:      rgba(0,0,0,0.07);
+    --text:        #1a1a1a;
+    --muted:       #888;
+    --faint:       #bbb;
+    --border:      #eee;
+    --input-bd:    #e0e0e0;
+    --input-focus: #aaa;
+    --btn:         #1a1a1a;
+    --btn-text:    #ffffff;
+    --hato-bg:     #EDF7F1;
+    --hato-bd:     #c3e8d0;
+    --hato-val:    #2E7D52;
+    --neto-bg:     #EEF4FB;
+    --neto-bd:     #c3d9f2;
+    --neto-val:    #1E5FAA;
+    --donut-bd:    #ffffff;
+  }
+
+  /* ── Tema oscuro automático ── */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:          #111113;
+      --card:        #1c1c1e;
+      --shadow:      rgba(0,0,0,0.5);
+      --text:        #efefef;
+      --muted:       #888;
+      --faint:       #555;
+      --border:      #2a2a2a;
+      --input-bd:    #333;
+      --input-focus: #666;
+      --btn:         #efefef;
+      --btn-text:    #1a1a1a;
+      --hato-bg:     #162a1e;
+      --hato-bd:     #274d35;
+      --hato-val:    #5ecf8a;
+      --neto-bg:     #141e30;
+      --neto-bd:     #1e3a6a;
+      --neto-val:    #6aaff7;
+      --donut-bd:    #1c1c1e;
+    }
+  }
+
   body {
     font-family: 'DM Sans', sans-serif;
-    background: #FAFAF8;
+    background: var(--bg);
     display: flex;
     align-items: center;
     justify-content: center;
     min-height: 100vh;
     padding: 24px;
+    transition: background .3s;
   }
 
   .card {
-    background: #fff;
+    background: var(--card);
     border-radius: 20px;
-    box-shadow: 0 4px 32px rgba(0,0,0,0.07);
+    box-shadow: 0 4px 32px var(--shadow);
     padding: 32px 36px 28px;
     max-width: 720px;
     width: 100%;
@@ -32,13 +79,13 @@
   h1 {
     font-family: 'DM Serif Display', serif;
     font-size: 1.45rem;
-    color: #1a1a1a;
+    color: var(--text);
     margin-bottom: 4px;
   }
 
   .subtitle {
     font-size: 0.82rem;
-    color: #888;
+    color: var(--muted);
     margin-bottom: 24px;
     letter-spacing: 0.02em;
   }
@@ -50,14 +97,9 @@
     margin-bottom: 28px;
   }
 
-  .total-box {
-    border-radius: 14px;
-    padding: 14px 16px;
-    text-align: center;
-  }
-
-  .total-box.hato { background: #EDF7F1; border: 1.5px solid #c3e8d0; }
-  .total-box.neto { background: #EEF4FB; border: 1.5px solid #c3d9f2; }
+  .total-box { border-radius: 14px; padding: 14px 16px; text-align: center; }
+  .total-box.hato { background: var(--hato-bg); border: 1.5px solid var(--hato-bd); }
+  .total-box.neto { background: var(--neto-bg); border: 1.5px solid var(--neto-bd); }
 
   .total-box .valor {
     font-family: 'DM Serif Display', serif;
@@ -65,33 +107,26 @@
     line-height: 1;
   }
 
-  .total-box.hato .valor { color: #2E7D52; }
-  .total-box.neto .valor { color: #1E5FAA; }
+  .total-box.hato .valor { color: var(--hato-val); }
+  .total-box.neto .valor { color: var(--neto-val); }
 
   .total-box .etiqueta {
     font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: #888;
+    color: var(--muted);
     margin-top: 4px;
   }
 
-  .total-box .nota {
-    font-size: 0.67rem;
-    color: #bbb;
-    margin-top: 3px;
-  }
+  .total-box .nota { font-size: 0.67rem; color: var(--faint); margin-top: 3px; }
 
   .chart-wrap {
     width: 100%;
-    max-width: 680px;
+    max-width: 380px;
     margin: 0 auto 24px;
   }
 
-  .chart-wrap canvas {
-    display: block;
-    width: 100% !important;
-  }
+  .chart-wrap canvas { display: block; width: 100% !important; }
 
   @media (max-width: 480px) {
     .chart-wrap { max-width: 290px; }
@@ -99,58 +134,41 @@
     .legend { grid-template-columns: 1fr; }
   }
 
-  .legend {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px 20px;
-  }
-
+  .legend { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 20px; }
   .legend-item { display: flex; align-items: center; gap: 8px; }
   .dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
-  .legend-text { flex: 1; font-size: 0.79rem; color: #1a1a1a; }
-  .legend-count { font-size: 0.79rem; font-weight: 500; color: #1a1a1a; }
-  .legend-pct { font-size: 0.69rem; color: #888; margin-left: 2px; }
+  .legend-text { flex: 1; font-size: 0.79rem; color: var(--text); }
+  .legend-count { font-size: 0.79rem; font-weight: 500; color: var(--text); }
+  .legend-pct { font-size: 0.69rem; color: var(--muted); margin-left: 2px; }
 
-  details {
-    margin-top: 24px;
-    border-top: 1px solid #eee;
-    padding-top: 16px;
-  }
+  details { margin-top: 24px; border-top: 1px solid var(--border); padding-top: 16px; }
 
   summary {
     font-size: 0.78rem;
-    color: #888;
+    color: var(--muted);
     cursor: pointer;
     user-select: none;
     letter-spacing: 0.04em;
   }
 
-  .inputs {
-    margin-top: 14px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px 16px;
-  }
+  .inputs { margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; }
 
-  .input-group label {
-    display: block;
-    font-size: 0.72rem;
-    color: #888;
-    margin-bottom: 3px;
-  }
+  .input-group label { display: block; font-size: 0.72rem; color: var(--muted); margin-bottom: 3px; }
 
   .input-group input {
     width: 100%;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--input-bd);
     border-radius: 7px;
     padding: 5px 8px;
     font-size: 0.85rem;
     font-family: inherit;
     outline: none;
+    background: var(--card);
+    color: var(--text);
     transition: border-color .2s;
   }
 
-  .input-group input:focus { border-color: #aaa; }
+  .input-group input:focus { border-color: var(--input-focus); }
 
   button.apply {
     margin-top: 12px;
@@ -158,15 +176,15 @@
     padding: 8px;
     border: none;
     border-radius: 9px;
-    background: #1a1a1a;
-    color: #fff;
+    background: var(--btn);
+    color: var(--btn-text);
     font-family: inherit;
     font-size: 0.82rem;
     cursor: pointer;
     transition: opacity .2s;
   }
 
-  button.apply:hover { opacity: 0.82; }
+  button.apply:hover { opacity: 0.78; }
 </style>
 </head>
 <body>
@@ -225,7 +243,11 @@ const colores = {
 // ════════════════════════════════════════════
 
 let chart;
-let currentNeto = 0;
+
+// Detecta si el dispositivo está en modo oscuro
+function isDark() {
+  return window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
 
 function getColor(name, idx) {
   return colores[name] || colores._extra[idx % colores._extra.length];
@@ -245,13 +267,13 @@ const outerLabelsPlugin = {
   id: 'outerLabels',
   afterDraw(chart) {
     const { ctx, data, chartArea } = chart;
-    const meta   = chart.getDatasetMeta(0);
-    const total  = data.datasets[0].data.reduce((a, b) => a + b, 0);
+    const meta  = chart.getDatasetMeta(0);
+    const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
     if (!total) return;
 
-    // Centro real del gráfico
-    const cx = (chartArea.left + chartArea.right) / 2;
-    const cy = (chartArea.top  + chartArea.bottom) / 2;
+    const dark = isDark();
+    const cx   = (chartArea.left + chartArea.right)  / 2;
+    const cy   = (chartArea.top  + chartArea.bottom) / 2;
 
     ctx.save();
 
@@ -264,20 +286,13 @@ const outerLabelsPlugin = {
       const color    = data.datasets[0].backgroundColor[i];
       const midAngle = (arc.startAngle + arc.endAngle) / 2;
       const outerR   = arc.outerRadius;
-
       const isRight  = Math.cos(midAngle) >= 0;
 
-      // ── Línea diagonal desde el borde del arco ──
       const x1 = cx + Math.cos(midAngle) * (outerR + 6);
       const y1 = cy + Math.sin(midAngle) * (outerR + 6);
-
-      // Punto del codo
       const x2 = cx + Math.cos(midAngle) * (outerR + 30);
       const y2 = cy + Math.sin(midAngle) * (outerR + 30);
-
-      // Tick horizontal (termina ANTES del texto)
-      const tickLen = 16;
-      const x3 = x2 + (isRight ? tickLen : -tickLen);
+      const x3 = x2 + (isRight ? 16 : -16);
       const y3 = y2;
 
       ctx.beginPath();
@@ -289,23 +304,21 @@ const outerLabelsPlugin = {
       ctx.lineJoin    = 'round';
       ctx.stroke();
 
-      // ── Texto empieza con gap desde el final del tick ──
-      const gap = 5;
-      const tx  = isRight ? x3 + gap : x3 - gap;
-      const ty  = y3;
+      const tx = isRight ? x3 + 5 : x3 - 5;
+      const ty = y3;
 
-      ctx.textAlign    = isRight ? 'left' : 'right';
+      ctx.textAlign = isRight ? 'left' : 'right';
 
-      // Línea 1: nombre del estado
+      // Nombre del estado
       ctx.textBaseline = 'bottom';
       ctx.font         = '600 11px "DM Sans", sans-serif';
-      ctx.fillStyle    = '#1a1a1a';
+      ctx.fillStyle    = dark ? '#efefef' : '#1a1a1a';
       ctx.fillText(label, tx, ty);
 
-      // Línea 2: cantidad y porcentaje
+      // Cantidad y porcentaje
       ctx.textBaseline = 'top';
       ctx.font         = '400 10.5px "DM Sans", sans-serif';
-      ctx.fillStyle    = '#666';
+      ctx.fillStyle    = dark ? '#aaa' : '#666';
       ctx.fillText(`${value} animales · ${pct}%`, tx, ty + 2);
     });
 
@@ -318,7 +331,7 @@ function buildChart(data) {
   const values   = Object.values(data);
   const bgColors = labels.map((l, i) => getColor(l, i));
   const { hato, neto } = calcTotales(data);
-  currentNeto = neto;
+  const dark = isDark();
 
   document.getElementById('totalHato').textContent = hato;
   document.getElementById('totalNeto').textContent = neto;
@@ -349,20 +362,14 @@ function buildChart(data) {
         data: values,
         backgroundColor: bgColors,
         borderWidth: 3,
-        borderColor: '#ffffff',
+        borderColor: dark ? '#1c1c1e' : '#ffffff',
         hoverOffset: 6
       }]
     },
     options: {
       cutout: '55%',
-      // Padding asimétrico generoso para que quepan las etiquetas en todos los lados
       layout: {
-        padding: {
-          top:    55,
-          bottom: 55,
-          left:   90,
-          right:  90
-        }
+        padding: { top: 55, bottom: 55, left: 90, right: 90 }
       },
       plugins: {
         legend: { display: false },
@@ -391,6 +398,11 @@ function applyInputs() {
   estadosData = newData;
   buildChart(estadosData);
 }
+
+// Reconstruir el gráfico si el usuario cambia el tema del sistema
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  buildChart(estadosData);
+});
 
 buildChart(estadosData);
 </script>
