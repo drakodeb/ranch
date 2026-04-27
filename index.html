@@ -24,8 +24,9 @@
     border-radius: 20px;
     box-shadow: 0 4px 32px rgba(0,0,0,0.07);
     padding: 32px 36px 28px;
-    max-width: 460px;
+    max-width: 720px;
     width: 100%;
+    overflow: visible;
   }
 
   h1 {
@@ -82,10 +83,20 @@
   }
 
   .chart-wrap {
-    position: relative;
     width: 100%;
-    height: 360px;
+    max-width: 380px;
     margin: 0 auto 24px;
+  }
+
+  .chart-wrap canvas {
+    display: block;
+    width: 100% !important;
+  }
+
+  @media (max-width: 480px) {
+    .chart-wrap { max-width: 290px; }
+    .card { padding: 20px 16px 20px; }
+    .legend { grid-template-columns: 1fr; }
   }
 
   .legend {
@@ -95,9 +106,7 @@
   }
 
   .legend-item { display: flex; align-items: center; gap: 8px; }
-
   .dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
-
   .legend-text { flex: 1; font-size: 0.79rem; color: #1a1a1a; }
   .legend-count { font-size: 0.79rem; font-weight: 500; color: #1a1a1a; }
   .legend-pct { font-size: 0.69rem; color: #888; margin-left: 2px; }
@@ -216,6 +225,7 @@ const colores = {
 // ════════════════════════════════════════════
 
 let chart;
+let currentNeto = 0;
 
 function getColor(name, idx) {
   return colores[name] || colores._extra[idx % colores._extra.length];
@@ -230,46 +240,46 @@ function calcTotales(data) {
   return { hato, neto };
 }
 
-// Plugin completamente manual: dibuja línea + texto sin superposición
+// Plugin: dibuja etiquetas externas con línea → codo → texto
 const outerLabelsPlugin = {
   id: 'outerLabels',
   afterDraw(chart) {
-    const { ctx, data } = chart;
-    const meta = chart.getDatasetMeta(0);
-    const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+    const { ctx, data, chartArea } = chart;
+    const meta   = chart.getDatasetMeta(0);
+    const total  = data.datasets[0].data.reduce((a, b) => a + b, 0);
     if (!total) return;
+
+    // Centro real del gráfico
+    const cx = (chartArea.left + chartArea.right) / 2;
+    const cy = (chartArea.top  + chartArea.bottom) / 2;
 
     ctx.save();
 
     meta.data.forEach((arc, i) => {
       const value = data.datasets[0].data[i];
-      if (value / total < 0.04) return; // omitir segmentos muy pequeños
+      if (value / total < 0.04) return;
 
       const pct      = Math.round(value / total * 100);
       const label    = data.labels[i];
       const color    = data.datasets[0].backgroundColor[i];
       const midAngle = (arc.startAngle + arc.endAngle) / 2;
       const outerR   = arc.outerRadius;
-      const cx       = arc.x;
-      const cy       = arc.y;
 
-      const isRight = Math.cos(midAngle) >= 0;
+      const isRight  = Math.cos(midAngle) >= 0;
 
-      // Punto inicio de línea (borde del anillo)
+      // ── Línea diagonal desde el borde del arco ──
       const x1 = cx + Math.cos(midAngle) * (outerR + 6);
       const y1 = cy + Math.sin(midAngle) * (outerR + 6);
 
-      // Punto codo (diagonal hacia afuera)
-      const elbowLen = 26;
-      const x2 = cx + Math.cos(midAngle) * (outerR + elbowLen);
-      const y2 = cy + Math.sin(midAngle) * (outerR + elbowLen);
+      // Punto del codo
+      const x2 = cx + Math.cos(midAngle) * (outerR + 30);
+      const y2 = cy + Math.sin(midAngle) * (outerR + 30);
 
-      // Línea horizontal corta (codo → extremo)
-      const tickLen = 14;
+      // Tick horizontal (termina ANTES del texto)
+      const tickLen = 16;
       const x3 = x2 + (isRight ? tickLen : -tickLen);
       const y3 = y2;
 
-      // Dibujar línea
       ctx.beginPath();
       ctx.moveTo(x1, y1);
       ctx.lineTo(x2, y2);
@@ -279,21 +289,24 @@ const outerLabelsPlugin = {
       ctx.lineJoin    = 'round';
       ctx.stroke();
 
-      // Texto: empieza DESPUÉS del extremo de la línea con un gap
-      const gap  = 6;
-      const tx   = isRight ? x3 + gap : x3 - gap;
-      const ty   = y3;
+      // ── Texto empieza con gap desde el final del tick ──
+      const gap = 5;
+      const tx  = isRight ? x3 + gap : x3 - gap;
+      const ty  = y3;
 
       ctx.textAlign    = isRight ? 'left' : 'right';
+
+      // Línea 1: nombre del estado
       ctx.textBaseline = 'bottom';
-      ctx.font         = '500 11px "DM Sans", sans-serif';
+      ctx.font         = '600 11px "DM Sans", sans-serif';
       ctx.fillStyle    = '#1a1a1a';
       ctx.fillText(label, tx, ty);
 
+      // Línea 2: cantidad y porcentaje
       ctx.textBaseline = 'top';
-      ctx.font         = '400 10px "DM Sans", sans-serif';
-      ctx.fillStyle    = '#555';
-      ctx.fillText(`${value} anim · ${pct}%`, tx, ty + 1);
+      ctx.font         = '400 10.5px "DM Sans", sans-serif';
+      ctx.fillStyle    = '#666';
+      ctx.fillText(`${value} animales · ${pct}%`, tx, ty + 2);
     });
 
     ctx.restore();
@@ -305,11 +318,11 @@ function buildChart(data) {
   const values   = Object.values(data);
   const bgColors = labels.map((l, i) => getColor(l, i));
   const { hato, neto } = calcTotales(data);
+  currentNeto = neto;
 
   document.getElementById('totalHato').textContent = hato;
   document.getElementById('totalNeto').textContent = neto;
 
-  // Leyenda
   document.getElementById('legend').innerHTML = labels.map((l, i) => {
     const pct = neto ? Math.round(values[i] / neto * 100) : 0;
     return `<div class="legend-item">
@@ -319,7 +332,6 @@ function buildChart(data) {
     </div>`;
   }).join('');
 
-  // Inputs
   document.getElementById('inputs').innerHTML = labels.map(l => `
     <div class="input-group">
       <label>${l}</label>
@@ -343,7 +355,15 @@ function buildChart(data) {
     },
     options: {
       cutout: '55%',
-      layout: { padding: 90 }, // espacio para las etiquetas externas
+      // Padding asimétrico generoso para que quepan las etiquetas en todos los lados
+      layout: {
+        padding: {
+          top:    55,
+          bottom: 55,
+          left:   90,
+          right:  90
+        }
+      },
       plugins: {
         legend: { display: false },
         tooltip: {
