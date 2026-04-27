@@ -67,8 +67,6 @@
 
   .card {
     background: var(--card);
-    border-radius: 20px;
-    box-shadow: 0 4px 32px var(--shadow);
     padding: 32px 36px 28px;
     max-width: 720px;
     width: 100%;
@@ -175,11 +173,11 @@
 //  EDITA AQUÍ TUS DATOS
 // ════════════════════════════════════════════
 let estadosData = {
-  "Reproductor Activo": 17,
-  "Reemplazo":          0,
-  "Engorda":            4,
-  "Vendido":            10,
-  "Muerto":              6
+  "Reproductor Activo": 18,
+  "Reemplazo":          12,
+  "Engorda":            15,
+  "Vendido":            25,
+  "Muerto":              7
 };
 
 const excluirDeHato = ["Muerto", "Vendido"];
@@ -324,7 +322,7 @@ function buildChart(data) {
             label: c => {
               const v   = c.parsed;
               const pct = neto ? Math.round(v / neto * 100) : 0;
-              return ` ${v} anim · ${pct}%`;
+              return ` ${v} animales · ${pct}%`;
             }
           }
         }
