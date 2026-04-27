@@ -6,20 +6,12 @@
 <title>Estado Animales</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap');
-
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg:   #FAFAF8;
-    --card: #FFFFFF;
-    --text: #1a1a1a;
-    --muted:#888;
-  }
 
   body {
     font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
+    background: #FAFAF8;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -28,29 +20,28 @@
   }
 
   .card {
-    background: var(--card);
+    background: #fff;
     border-radius: 20px;
     box-shadow: 0 4px 32px rgba(0,0,0,0.07);
     padding: 32px 36px 28px;
-    max-width: 500px;
+    max-width: 560px;
     width: 100%;
   }
 
   h1 {
     font-family: 'DM Serif Display', serif;
     font-size: 1.45rem;
-    color: var(--text);
+    color: #1a1a1a;
     margin-bottom: 4px;
   }
 
   .subtitle {
     font-size: 0.82rem;
-    color: var(--muted);
+    color: #888;
     margin-bottom: 24px;
     letter-spacing: 0.02em;
   }
 
-  /* ── Totales ── */
   .totales {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -64,15 +55,8 @@
     text-align: center;
   }
 
-  .total-box.hato {
-    background: #EDF7F1;
-    border: 1.5px solid #c3e8d0;
-  }
-
-  .total-box.neto {
-    background: #EEF4FB;
-    border: 1.5px solid #c3d9f2;
-  }
+  .total-box.hato { background: #EDF7F1; border: 1.5px solid #c3e8d0; }
+  .total-box.neto { background: #EEF4FB; border: 1.5px solid #c3d9f2; }
 
   .total-box .valor {
     font-family: 'DM Serif Display', serif;
@@ -87,7 +71,7 @@
     font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--muted);
+    color: #888;
     margin-top: 4px;
   }
 
@@ -97,51 +81,27 @@
     margin-top: 3px;
   }
 
-  /* ── Gráfico ── */
   .chart-wrap {
     position: relative;
-    width: 210px;
-    margin: 0 auto 28px;
+    width: 100%;
+    height: 360px;
+    margin: 0 auto 24px;
   }
 
-  /* ── Leyenda ── */
   .legend {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px 20px;
   }
 
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+  .legend-item { display: flex; align-items: center; gap: 8px; }
 
-  .dot {
-    width: 11px; height: 11px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
+  .dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
 
-  .legend-text {
-    flex: 1;
-    font-size: 0.79rem;
-    color: var(--text);
-  }
+  .legend-text { flex: 1; font-size: 0.79rem; color: #1a1a1a; }
+  .legend-count { font-size: 0.79rem; font-weight: 500; color: #1a1a1a; }
+  .legend-pct { font-size: 0.69rem; color: #888; margin-left: 2px; }
 
-  .legend-count {
-    font-size: 0.79rem;
-    font-weight: 500;
-    color: var(--text);
-  }
-
-  .legend-pct {
-    font-size: 0.69rem;
-    color: var(--muted);
-    margin-left: 2px;
-  }
-
-  /* ── Panel edición ── */
   details {
     margin-top: 24px;
     border-top: 1px solid #eee;
@@ -150,7 +110,7 @@
 
   summary {
     font-size: 0.78rem;
-    color: var(--muted);
+    color: #888;
     cursor: pointer;
     user-select: none;
     letter-spacing: 0.04em;
@@ -166,7 +126,7 @@
   .input-group label {
     display: block;
     font-size: 0.72rem;
-    color: var(--muted);
+    color: #888;
     margin-bottom: 3px;
   }
 
@@ -189,7 +149,7 @@
     padding: 8px;
     border: none;
     border-radius: 9px;
-    background: var(--text);
+    background: #1a1a1a;
     color: #fff;
     font-family: inherit;
     font-size: 0.82rem;
@@ -205,7 +165,6 @@
   <h1>Hato de Animales</h1>
   <p class="subtitle">Estado actual del inventario</p>
 
-  <!-- Totales -->
   <div class="totales">
     <div class="total-box hato">
       <div class="valor" id="totalHato">0</div>
@@ -219,15 +178,12 @@
     </div>
   </div>
 
-  <!-- Gráfico -->
   <div class="chart-wrap">
-    <canvas id="donut" width="210" height="210"></canvas>
+    <canvas id="donut"></canvas>
   </div>
 
-  <!-- Leyenda -->
   <div class="legend" id="legend"></div>
 
-  <!-- Panel edición manual -->
   <details>
     <summary>✏️ Actualizar datos manualmente</summary>
     <div class="inputs" id="inputs"></div>
@@ -247,7 +203,6 @@ let estadosData = {
   "Muerto":              7
 };
 
-// Estos estados NO cuentan para el Total Hato
 const excluirDeHato = ["Muerto", "Vendido"];
 
 const colores = {
@@ -275,6 +230,76 @@ function calcTotales(data) {
   return { hato, neto };
 }
 
+// Plugin completamente manual: dibuja línea + texto sin superposición
+const outerLabelsPlugin = {
+  id: 'outerLabels',
+  afterDraw(chart) {
+    const { ctx, data } = chart;
+    const meta = chart.getDatasetMeta(0);
+    const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+    if (!total) return;
+
+    ctx.save();
+
+    meta.data.forEach((arc, i) => {
+      const value = data.datasets[0].data[i];
+      if (value / total < 0.04) return; // omitir segmentos muy pequeños
+
+      const pct      = Math.round(value / total * 100);
+      const label    = data.labels[i];
+      const color    = data.datasets[0].backgroundColor[i];
+      const midAngle = (arc.startAngle + arc.endAngle) / 2;
+      const outerR   = arc.outerRadius;
+      const cx       = arc.x;
+      const cy       = arc.y;
+
+      const isRight = Math.cos(midAngle) >= 0;
+
+      // Punto inicio de línea (borde del anillo)
+      const x1 = cx + Math.cos(midAngle) * (outerR + 6);
+      const y1 = cy + Math.sin(midAngle) * (outerR + 6);
+
+      // Punto codo (diagonal hacia afuera)
+      const elbowLen = 26;
+      const x2 = cx + Math.cos(midAngle) * (outerR + elbowLen);
+      const y2 = cy + Math.sin(midAngle) * (outerR + elbowLen);
+
+      // Línea horizontal corta (codo → extremo)
+      const tickLen = 14;
+      const x3 = x2 + (isRight ? tickLen : -tickLen);
+      const y3 = y2;
+
+      // Dibujar línea
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.lineTo(x3, y3);
+      ctx.strokeStyle = color;
+      ctx.lineWidth   = 1.5;
+      ctx.lineJoin    = 'round';
+      ctx.stroke();
+
+      // Texto: empieza DESPUÉS del extremo de la línea con un gap
+      const gap  = 6;
+      const tx   = isRight ? x3 + gap : x3 - gap;
+      const ty   = y3;
+
+      ctx.textAlign    = isRight ? 'left' : 'right';
+      ctx.textBaseline = 'bottom';
+      ctx.font         = '500 11px "DM Sans", sans-serif';
+      ctx.fillStyle    = '#1a1a1a';
+      ctx.fillText(label, tx, ty);
+
+      ctx.textBaseline = 'top';
+      ctx.font         = '400 10px "DM Sans", sans-serif';
+      ctx.fillStyle    = '#555';
+      ctx.fillText(`${value} anim · ${pct}%`, tx, ty + 1);
+    });
+
+    ctx.restore();
+  }
+};
+
 function buildChart(data) {
   const labels   = Object.keys(data);
   const values   = Object.values(data);
@@ -285,8 +310,7 @@ function buildChart(data) {
   document.getElementById('totalNeto').textContent = neto;
 
   // Leyenda
-  const legendEl = document.getElementById('legend');
-  legendEl.innerHTML = labels.map((l, i) => {
+  document.getElementById('legend').innerHTML = labels.map((l, i) => {
     const pct = neto ? Math.round(values[i] / neto * 100) : 0;
     return `<div class="legend-item">
       <div class="dot" style="background:${bgColors[i]}"></div>
@@ -296,16 +320,15 @@ function buildChart(data) {
   }).join('');
 
   // Inputs
-  const inputsEl = document.getElementById('inputs');
-  inputsEl.innerHTML = labels.map(l => `
+  document.getElementById('inputs').innerHTML = labels.map(l => `
     <div class="input-group">
       <label>${l}</label>
       <input type="number" id="inp_${l.replace(/\s+/g,'_')}" value="${data[l]}" min="0">
     </div>`).join('');
 
-  // Chart
   const ctx = document.getElementById('donut').getContext('2d');
   if (chart) chart.destroy();
+
   chart = new Chart(ctx, {
     type: 'doughnut',
     data: {
@@ -315,33 +338,34 @@ function buildChart(data) {
         backgroundColor: bgColors,
         borderWidth: 3,
         borderColor: '#ffffff',
-        hoverOffset: 8
+        hoverOffset: 6
       }]
     },
     options: {
-      cutout: '65%',
+      cutout: '55%',
+      layout: { padding: 90 }, // espacio para las etiquetas externas
       plugins: {
         legend: { display: false },
         tooltip: {
           callbacks: {
-            label: ctx => {
-              const v = ctx.parsed;
+            label: c => {
+              const v   = c.parsed;
               const pct = neto ? Math.round(v / neto * 100) : 0;
-              return ` ${v} animales (${pct}% del neto)`;
+              return ` ${v} animales · ${pct}%`;
             }
           }
         }
       },
       animation: { animateRotate: true, duration: 700 }
-    }
+    },
+    plugins: [outerLabelsPlugin]
   });
 }
 
 function applyInputs() {
   const newData = {};
   Object.keys(estadosData).forEach(k => {
-    const id = 'inp_' + k.replace(/\s+/g,'_');
-    const el = document.getElementById(id);
+    const el = document.getElementById('inp_' + k.replace(/\s+/g,'_'));
     if (el) newData[k] = parseInt(el.value) || 0;
   });
   estadosData = newData;
