@@ -57,7 +57,7 @@
 
   body {
     font-family: 'DM Sans', sans-serif;
-    background: transparent;
+    background: var(--card);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -324,7 +324,7 @@ function buildChart(data) {
             label: c => {
               const v   = c.parsed;
               const pct = neto ? Math.round(v / neto * 100) : 0;
-              return ` ${v} animales · ${pct}%`;
+              return ` ${v} anim · ${pct}%`;
             }
           }
         }
